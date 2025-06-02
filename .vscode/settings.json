@@ -1,0 +1,19 @@
+{
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "shellformat.effectLanguages": [
+    "shellscript",
+    "dockerfile",
+    "dotenv",
+    "hosts",
+    "jvmoptions",
+    "ignore",
+    "gitignore",
+    "properties",
+    "spring-boot-properties",
+    "azcli",
+    "bats"
+  ],
+  "shellformat.path": "/home/ctrlmaniac/go/bin/shfmt",
+  "shellformat.flag": "-p -bn -ci -i 2",
+  "shellformat.useEditorConfig": false
+}

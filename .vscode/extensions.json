@@ -1,6 +1,8 @@
 {
-    "recommendations": [
-        "timonwong.shellcheck",
-        "foxundermoon.shell-format"
-    ]
+  "recommendations": [
+    "timonwong.shellcheck",
+    "foxundermoon.shell-format",
+    "esbenp.prettier-vscode",
+    "editorconfig.editorconfig"
+  ]
 }
