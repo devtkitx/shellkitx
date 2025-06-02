@@ -15,5 +15,9 @@
   ],
   "shellformat.path": "/home/ctrlmaniac/go/bin/shfmt",
   "shellformat.flag": "-p -bn -ci -i 2",
-  "shellformat.useEditorConfig": false
+  "shellformat.useEditorConfig": false,
+  "shellcheck.customArgs": ["-x"],
+  "shellcheck.disableVersionCheck": true,
+  "shellcheck.enable": true,
+  "shellcheck.run": "onType"
 }
