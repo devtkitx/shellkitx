@@ -1,5 +1,5 @@
 #!/bin/sh
-# File: bin/shellkitx
+# File: bin/shellkitx.sh
 #
 # Main executable script for the shellkitx CLI tool.
 # Located in the 'bin/' directory at the project root.
@@ -8,6 +8,19 @@
 #   shellkitx <command> <action> [options]
 
 set -eu
+
+# Clear the terminal
+clear
+
+# Print banner ASCII art
+cat <<'EOF'
+ ____  _          _ _ _  ___ _
+/ ___|| |__   ___| | | |/ (_) |___  __
+\___ \| '_ \ / _ \ | | ' /| | __\ \/ /
+ ___) | | | |  __/ | | . \| | |_ >  <
+|____/|_| |_|\___|_|_|_|\_\_|\__/_/\_\
+
+EOF
 
 # Root directory of shellkitx (one level up from this script)
 SHELLKITX_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -46,15 +59,17 @@ export SHELLKITX_QUIET SHELLKITX_PLAIN
 . "$SHELLKITX_ROOT/core/help/handler.sh"
 
 load_installed_mods() {
-  # Load installed modules from the mods directory
+  # List all directories inside mods directory
+  # POSIX sh lacks nullglob, so we must check if glob matches something
+  # Use a for loop with test inside
   if [ -d "$MODS_DIR" ]; then
     for mod_path in "$MODS_DIR"/*; do
       if [ ! -e "$mod_path" ]; then
-        # No matches for glob, break loop
+        # No files matched the glob, skip
         break
       fi
 
-      if [ -d "$mod_path" ] && [ -f "$mod_path/mod.json" ]; then
+      if [ -d "$mod_path" ] && [ -f "$mod_path/module.json" ]; then
         if [ -f "$mod_path/commands/init.sh" ]; then
           # shellcheck source=/dev/null
           . "$mod_path/commands/init.sh"
@@ -69,7 +84,7 @@ load_installed_mods
 COMMAND="${1:-help}"
 ACTION="${2:-help}"
 
-# Shift parsed command and action from arguments
+# Shift the command and action arguments if present
 if [ $# -gt 0 ]; then shift; fi
 if [ $# -gt 0 ]; then shift; fi
 

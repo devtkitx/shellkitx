@@ -5,7 +5,7 @@
 # Should be sourced early in execution.
 
 # Prevent multiple sourcing
-if [ -n "$__SHELLKITX_ENV_LOADED" ]; then
+if [ "${__SHELLKITX_ENV_LOADED:-}" != "" ]; then
   return 0
 fi
 __SHELLKITX_ENV_LOADED=1
