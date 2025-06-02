@@ -1,0 +1,10 @@
+{
+  "name": "sys",
+  "description": "Install core development tools",
+  "commands": [
+    "install",
+    "init",
+    "help",
+    "check"
+  ]
+}

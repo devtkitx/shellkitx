@@ -46,17 +46,15 @@ export SHELLKITX_QUIET SHELLKITX_PLAIN
 . "$SHELLKITX_ROOT/core/help/handler.sh"
 
 load_installed_mods() {
-  # List all directories inside mods directory
-  # POSIX sh lacks nullglob, so we must check if glob matches something
-  # Use a for loop with test inside
+  # Load installed modules from the mods directory
   if [ -d "$MODS_DIR" ]; then
     for mod_path in "$MODS_DIR"/*; do
       if [ ! -e "$mod_path" ]; then
-        # No files matched the glob, skip
+        # No matches for glob, break loop
         break
       fi
 
-      if [ -d "$mod_path" ] && [ -f "$mod_path/module.json" ]; then
+      if [ -d "$mod_path" ] && [ -f "$mod_path/mod.json" ]; then
         if [ -f "$mod_path/commands/init.sh" ]; then
           # shellcheck source=/dev/null
           . "$mod_path/commands/init.sh"
@@ -71,7 +69,7 @@ load_installed_mods
 COMMAND="${1:-help}"
 ACTION="${2:-help}"
 
-# Shift the command and action arguments if present
+# Shift parsed command and action from arguments
 if [ $# -gt 0 ]; then shift; fi
 if [ $# -gt 0 ]; then shift; fi
 
