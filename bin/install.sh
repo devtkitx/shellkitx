@@ -216,9 +216,9 @@ _uninstall_shx() {
   fi
 
   if [ "$_USE_EMOJI_LOGS" = "true" ]; then
-    _log_info "\n🎉 shx uninstallation process finished."
+    _log_info "🎉 shx uninstallation process finished."
   else
-    _log_info "\nshx uninstallation process finished."
+    _log_info "shx uninstallation process finished."
   fi
   exit 0
 }
