@@ -72,9 +72,7 @@ EOF
   if [ "$_USE_EMOJI_LOGS" = "true" ]; then
     _log_info "Welcome to the shx installer!"
   else
-    # The _log_info will add [INFO], so just the message.
-    # Or, if we want the banner's welcome to be distinct:
-    printf "Welcome to the shx installer!\n"
+    _log_info "Welcome to the shx installer!"
   fi
 }
 
@@ -202,7 +200,7 @@ _uninstall_shx() {
   if [ -d "${SHX_INSTALL_DIR}" ]; then
     _log_info "The shx installation directory is: ${SHX_INSTALL_DIR}"
     printf "Are you sure you want to remove this directory and all its contents? (y/N): "
-    read -r response
+    read -r response </dev/tty
     if [ "$response" = "y" ] || [ "$response" = "Y" ]; then
       printf "This will require sudo privileges to remove the directory.\n"
       if sudo rm -rf "${SHX_INSTALL_DIR}"; then
@@ -222,6 +220,7 @@ _uninstall_shx() {
   else
     _log_info "\nshx uninstallation process finished."
   fi
+  exit 0
 }
 
 # --- Main Execution ---
@@ -253,7 +252,7 @@ main() {
   done
 
   if [ "$_ACTION" = "uninstall" ]; then
-    _uninstall_shx
+    _uninstall_shx # This function will now exit, so script terminates here.
   fi
 
   # 0. Print Banner
