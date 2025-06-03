@@ -9,8 +9,8 @@
 # Source the logger library
 # Determine the script's own directory to reliably find the libs directory
 _SCRIPT_DIR="$(CDPATH="" cd -- "$(dirname -- "$0")" && pwd)"
-# shellcheck source=../../libs/logger.sh
-. "${_SCRIPT_DIR}/../../libs/logger.sh"
+# shellcheck source=../libs/logger.sh
+. "${_SCRIPT_DIR}/../libs/logger.sh"
 
 # The main command name.
 # For consistency and ease of modification, define it as a variable.
@@ -22,9 +22,29 @@ _log_plain "A command-line utility with a modular command structure." # You can 
 _log_plain ""
 _log_info "Available top-level commands:"
 _log_plain "  help          Show this help message."
-_log_plain "  self          Manage ${CMD_NAME} itself (e.g., update, uninstall)."
-# As you add more top-level command files or directories in 'shx/',
-# you would list them here.
+
+# Autodiscover commands from the script's own directory (_SCRIPT_DIR)
+# This directory (PROJECT_ROOT/shx/) is where top-level command scripts and group directories reside.
+if [ -d "$_SCRIPT_DIR" ]; then
+  for entry in "$_SCRIPT_DIR"/*; do
+    entry_basename=$(basename "$entry")
+
+    # Skip the main help.sh script itself
+    if [ "$entry_basename" = "help.sh" ]; then
+      continue
+    fi
+
+    if [ -d "$entry" ]; then
+      # Entry is a directory, treat as a command group
+      _log_plain "  ${entry_basename}          Commands for managing ${entry_basename}."
+    elif [ -f "$entry" ] && [ "${entry_basename##*.}" = "sh" ] && [ -x "$entry" ]; then
+      # Entry is an executable .sh file, treat as a direct command
+      command_name="${entry_basename%.sh}"
+      _log_plain "  ${command_name}          The ${command_name} command."
+    fi
+  done
+fi
+
 _log_plain ""
 _log_info "To get help for a specific command or subcommand group, append 'help':"
 _log_plain "  ${CMD_NAME} <command> help"
