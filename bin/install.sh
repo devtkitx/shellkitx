@@ -90,7 +90,7 @@ _ensure_git_installed() {
   if ! command -v git >/dev/null 2>&1; then
     _log_warning "Git is not installed."
     printf "Would you like to try and install Git now? This will require sudo privileges. (y/N): "
-    read -r response
+    read -r response </dev/tty
     if [ "$response" = "y" ] || [ "$response" = "Y" ]; then
       _log_info "Attempting to install Git..."
       if command -v apt-get >/dev/null 2>&1; then
