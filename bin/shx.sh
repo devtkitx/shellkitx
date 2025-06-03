@@ -14,5 +14,10 @@ _print_banner() {
 EOF
 }
 
-_print_banner
+main() {
+  _print_banner
+}
+
+# Run the main function
+main
 exit 0
