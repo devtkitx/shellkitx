@@ -6,7 +6,7 @@ set -e
 
 # --- Configuration ---
 # Replace this with the actual Git repository URL for shellkitx
-SHX_REPO_URL="https://github.com/yourusername/shx.git" # hypothetical, update if your repo URL changes
+SHX_REPO_URL="https://github.com/devtkitx/shx.git"
 
 # Installation directory for the shellkitx repository
 INSTALL_BASE_DIR="/opt"
