@@ -3,6 +3,7 @@
     "timonwong.shellcheck",
     "foxundermoon.shell-format",
     "esbenp.prettier-vscode",
-    "editorconfig.editorconfig"
+    "editorconfig.editorconfig",
+    "google.geminicodeassist"
   ]
 }
