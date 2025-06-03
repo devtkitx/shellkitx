@@ -16,29 +16,48 @@ SHX_INSTALL_DIR="${INSTALL_BASE_DIR}/shx"
 BIN_DIR="/usr/local/bin"
 EXECUTABLE_NAME="shx"
 
-# --- Helper Functions ---
-_print_prefix() {
-  printf "%s" "$1"
-}
+# --- Logging Configuration ---
+# Default: Use emojis (plain is OFF)
+_USE_EMOJI_LOGS="true"
 
+# Check if plain logging is requested via environment variable or --plain flag
+case "${SHX_LOG_PLAIN}" in
+  true | 1)
+    _USE_EMOJI_LOGS="false" # Plain is ON, turn emojis OFF
+    ;;
+esac
+
+# --- Helper Functions ---
 _log_info() {
-  _print_prefix "ℹ️  "
-  printf "%s\n" "$1"
+  if [ "$_USE_EMOJI_LOGS" = "true" ]; then
+    printf "ℹ️  %s\n" "$1"
+  else
+    printf "[INFO] %s\n" "$1"
+  fi
 }
 
 _log_success() {
-  _print_prefix "✅ "
-  printf "%s\n" "$1"
+  if [ "$_USE_EMOJI_LOGS" = "true" ]; then
+    printf "✅ %s\n" "$1"
+  else
+    printf "[OKAY] %s\n" "$1"
+  fi
 }
 
 _log_error() {
-  _print_prefix "❌ "
-  printf "%s\n" "$1" >&2
+  if [ "$_USE_EMOJI_LOGS" = "true" ]; then
+    printf "❌ %s\n" "$1" >&2
+  else
+    printf "[ERROR] %s\n" "$1" >&2
+  fi
 }
 
 _log_warning() {
-  _print_prefix "⚠️  "
-  printf "%s\n" "$1" >&2
+  if [ "$_USE_EMOJI_LOGS" = "true" ]; then
+    printf "⚠️  %s\n" "$1" >&2
+  else
+    printf "[WARN] %s\n" "$1" >&2
+  fi
 }
 
 _print_banner() {
@@ -50,14 +69,20 @@ _print_banner() {
 |___/_| |_/_/\_\
 
 EOF
-  _log_info "Welcome to the shx installer!"
+  if [ "$_USE_EMOJI_LOGS" = "true" ]; then
+    _log_info "Welcome to the shx installer!"
+  else
+    # The _log_info will add [INFO], so just the message.
+    # Or, if we want the banner's welcome to be distinct:
+    printf "Welcome to the shx installer!\n"
+  fi
 }
 
 _sudo_prompt_exec() (
   reason_msg="$1"
   shift # Remove the reason_msg from arguments, the rest are the command and its args
   # Print to stdout, consistent with previous informational messages about sudo
-  printf "Sudo privileges are required %s.\n" "$reason_msg"
+  printf "[WARN] Sudo privileges are required %s.\n" "$reason_msg"
   sudo "$@"
 )
 
@@ -152,8 +177,85 @@ _setup_executable() {
   fi
 }
 
+# --- Uninstallation Function ---
+_uninstall_shx() {
+  _print_banner
+  _log_info "Starting uninstallation of shx..."
+
+  # 1. Remove symbolic link
+  if [ -L "${BIN_DIR}/${EXECUTABLE_NAME}" ]; then
+    _log_info "Removing symbolic link: ${BIN_DIR}/${EXECUTABLE_NAME}"
+    printf "This will require sudo privileges to remove the symlink.\n"
+    if sudo rm -f "${BIN_DIR}/${EXECUTABLE_NAME}"; then
+      _log_success "Symbolic link removed."
+    else
+      _log_error "Failed to remove symbolic link. Please check permissions."
+    fi
+  elif [ -f "${BIN_DIR}/${EXECUTABLE_NAME}" ]; then
+    _log_warning "A file (not a symlink) exists at ${BIN_DIR}/${EXECUTABLE_NAME}."
+    _log_warning "It was not created by this installer and will NOT be removed to prevent accidental data loss."
+  else
+    _log_info "No symbolic link found at ${BIN_DIR}/${EXECUTABLE_NAME} (or it was already removed)."
+  fi
+
+  # 2. Remove installation directory
+  if [ -d "${SHX_INSTALL_DIR}" ]; then
+    _log_info "The shx installation directory is: ${SHX_INSTALL_DIR}"
+    printf "Are you sure you want to remove this directory and all its contents? (y/N): "
+    read -r response
+    if [ "$response" = "y" ] || [ "$response" = "Y" ]; then
+      printf "This will require sudo privileges to remove the directory.\n"
+      if sudo rm -rf "${SHX_INSTALL_DIR}"; then
+        _log_success "Installation directory ${SHX_INSTALL_DIR} removed."
+      else
+        _log_error "Failed to remove ${SHX_INSTALL_DIR}. Please check permissions or remove it manually."
+      fi
+    else
+      _log_info "Skipping removal of ${SHX_INSTALL_DIR}."
+    fi
+  else
+    _log_info "No installation directory found at ${SHX_INSTALL_DIR} (or it was already removed)."
+  fi
+
+  if [ "$_USE_EMOJI_LOGS" = "true" ]; then
+    _log_info "\n🎉 shx uninstallation process finished."
+  else
+    _log_info "\nshx uninstallation process finished."
+  fi
+}
+
 # --- Main Execution ---
 main() {
+  # Default action
+  _ACTION="install"
+
+  # Argument parsing
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --uninstall | uninstall)
+        _ACTION="uninstall"
+        shift
+        ;;
+      --plain)
+        _USE_EMOJI_LOGS="false"
+        shift
+        ;;
+      --)
+        shift
+        break
+        ;; # End of options
+      -*)
+        _log_error "Unknown option: $1"
+        exit 1
+        ;;
+      *) break ;; # Positional arguments
+    esac
+  done
+
+  if [ "$_ACTION" = "uninstall" ]; then
+    _uninstall_shx
+  fi
+
   # 0. Print Banner
   _print_banner
 
@@ -166,11 +268,15 @@ main() {
   # 3. Make shellkitx executable and link to BIN_DIR
   _setup_executable
 
-  _log_info "\n🎉 shx installation/update complete!"
-  _log_info "You can now start using shx. Try running: shx init"
+  if [ "$_USE_EMOJI_LOGS" = "true" ]; then
+    _log_success "\n🎉 shx installation/update complete!"
+  else
+    _log_success "\nshx installation/update complete!"
+  fi
+  _log_info "You can now start using shx. Try running: shx" # Changed from shx init to just shx
 }
 
 # Run the installer
-main
+main "$@"
 
 exit 0
